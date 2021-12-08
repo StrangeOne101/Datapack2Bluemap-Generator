@@ -6,7 +6,7 @@
 
     <groupId>com.strangeone101</groupId>
     <artifactId>Datapack-Bluemap-Generator</artifactId>
-    <version>1.0</version>
+    <version>1.1</version>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -59,7 +59,7 @@
     </repositories>
 
     <dependencies>
-        <!-- All the libs used by minecraft  -->
+        <!-- Gson  -->
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>

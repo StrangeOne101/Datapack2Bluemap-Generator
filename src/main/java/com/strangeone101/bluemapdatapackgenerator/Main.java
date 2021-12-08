@@ -23,7 +23,7 @@ public class Main {
         if (!input.exists()) input.mkdir();
 
         int n = JOptionPane.showOptionDialog(null, "Please unzip your datapack into the created 'DatapackInput' \nfolder! " +
-                "The pack.mcmeta should be within this folder and\n not in and sub-folder!", "Bluemap Datapack Generator",
+                "The pack.mcmeta should be within this folder and\nnot in and sub-folder!", "Bluemap Datapack Generator",
                 JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
 
         if (n == JOptionPane.NO_OPTION) {
@@ -52,6 +52,7 @@ public class Main {
 
         JsonObject output = new JsonObject();
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        int amount = 0;
 
         try {
             for (File namespace : new File(input, "data").listFiles(File::isDirectory)) {
@@ -60,25 +61,26 @@ public class Main {
                     if (biomeFile.getName().endsWith(".json")) {
                         Biome biome = gson.fromJson(new FileReader(biomeFile), Biome.class);
                         OutputBiome outBiome = new OutputBiome();
-                        outBiome.foliagecolor = biome.effects.foliage_color;
-                        outBiome.grasscolor = biome.effects.grass_color;
-                        outBiome.watercolor = biome.effects.water_color;
+                        outBiome.foliagecolor = biome.effects.foliage_color != 0 ? biome.effects.foliage_color : null;
+                        outBiome.grasscolor = biome.effects.grass_color != 0 ? biome.effects.grass_color : null;
+                        outBiome.watercolor = biome.effects.water_color != 0 ? biome.effects.water_color : null;
                         outBiome.humidity = biome.downfall;
                         outBiome.temperature = biome.temperature;
                         String name = namespace.getName() + ":" + biomeFile.getName().replace(".json", "");
                         output.add(name, gson.toJsonTree(outBiome));
+                        amount++;
                         System.out.println("Read biome data for biome " + name);
                     }
                 }
             }
             System.out.println("Done reading biomes!");
 
-            File outputFile = new File("output.json");
+            File outputFile = new File("biomes.json");
             String outString = gson.toJson(output);
             Files.writeString(outputFile.toPath(), outString, Charset.defaultCharset());
-            System.out.println("Written all biome data to output.json");
+            System.out.println("Written " + amount + " biomes to biomes.json");
 
-            JOptionPane.showMessageDialog(null, "Done! Created all biome files for " + pack, "Bluemap Datapack Generator",
+            JOptionPane.showMessageDialog(null, "Done! Generated " + amount + " biomes worth of data\nfor " + pack, "Bluemap Datapack Generator",
                     JOptionPane.INFORMATION_MESSAGE);
 
         } catch (Exception e) {
