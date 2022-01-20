@@ -6,11 +6,17 @@ import com.google.gson.JsonObject;
 
 import javax.swing.*;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 
 public class Main {
@@ -75,12 +81,28 @@ public class Main {
             }
             System.out.println("Done reading biomes!");
 
-            File outputFile = new File("biomes.json");
-            String outString = gson.toJson(output);
-            Files.writeString(outputFile.toPath(), outString, Charset.defaultCharset());
-            System.out.println("Written " + amount + " biomes to biomes.json");
+            String shortDatapackName = pack;
+            if (shortDatapackName.contains("|")) shortDatapackName = shortDatapackName.split("\\|")[0];
+            if (shortDatapackName.contains("-")) shortDatapackName = shortDatapackName.split("-")[0];
+            shortDatapackName = shortDatapackName.trim();
+            if (shortDatapackName.length() == 0) shortDatapackName = pack; //Something didn't go right so just forget making a short name
+            shortDatapackName = shortDatapackName.replaceAll(" ", "_");
 
-            JOptionPane.showMessageDialog(null, "Done! Generated " + amount + " biomes worth of data\nfor " + pack, "Bluemap Datapack Generator",
+            File zip = new File("BiomeColors_(" + shortDatapackName + ").zip");
+
+            ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zip));
+            ZipEntry e = new ZipEntry("assets/minecraft/biomes.json");
+            out.putNextEntry(e);
+
+            byte[] data = gson.toJson(output).getBytes(StandardCharsets.UTF_8);
+            out.write(data, 0, data.length);
+            out.closeEntry();
+            out.close();
+
+            System.out.println("Written " + amount + " biomes to resource pack file " + zip.getName());
+
+            JOptionPane.showMessageDialog(null, "Done! Generated " + amount + " biomes worth of data\nfor " + pack +
+                            "\n\nCreated resource pack file: " + zip.getName(), "Bluemap Datapack Generator",
                     JOptionPane.INFORMATION_MESSAGE);
 
         } catch (Exception e) {
@@ -100,6 +122,8 @@ public class Main {
             return meta.pack.description;
         } catch (IOException e) {
             e.printStackTrace();
+            JOptionPane.showConfirmDialog(null, e.getMessage(), "Bluemap Datapack Generator - Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
         return "Unknown";
     }
