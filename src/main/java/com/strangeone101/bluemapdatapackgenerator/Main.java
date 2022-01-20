@@ -6,8 +6,11 @@ import com.google.gson.JsonObject;
 
 import javax.swing.*;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FilenameFilter;
 import java.io.IOException;
 
 import java.nio.charset.Charset;
@@ -126,5 +129,96 @@ public class Main {
                     JOptionPane.ERROR_MESSAGE);
         }
         return "Unknown";
+    }
+
+    /**
+     * Finds a zip file within the input folder
+     * @param inputFolder The folder
+     * @return The zip file
+     */
+    public static File findZip(File inputFolder) {
+        try {
+            for (File file : inputFolder.listFiles((dir, name) -> name.toLowerCase().endsWith(".zip"))) {
+                ZipInputStream zipInput = new ZipInputStream(new FileInputStream(file));
+
+                ZipEntry entry;
+
+                while ((entry = zipInput.getNextEntry()) != null) {
+                    if (entry.getName().equalsIgnoreCase("pack.mcmeta")) {
+                        zipInput.closeEntry();
+                        zipInput.close();
+                        return file;
+                    }
+                }
+                zipInput.closeEntry();
+                zipInput.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showConfirmDialog(null, e.getMessage(), "Bluemap Datapack Generator - Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+        return null;
+    }
+
+    /**
+     * Auto extract a zip file in the same directory
+     * @param zip The zip file
+     * @return True if it succeeded
+     */
+    public static boolean autoExtract(File zip) {
+        try (ZipInputStream zipInput = new ZipInputStream(new FileInputStream(zip))) {
+
+            ZipEntry entry;
+            byte[] buffer = new byte[1024];
+
+            while ((entry = zipInput.getNextEntry()) != null) {
+                File newFile = newFile(zip.getParentFile(), entry);
+                if (entry.isDirectory()) {
+                    if (!newFile.isDirectory() && !newFile.mkdirs()) {
+                        throw new IOException("Failed to create directory " + newFile);
+                    }
+                } else {
+                    // fix for Windows-created archives
+                    File parent = newFile.getParentFile();
+                    if (!parent.isDirectory() && !parent.mkdirs()) {
+                        throw new IOException("Failed to create directory " + parent);
+                    }
+
+                    // write file content
+                    FileOutputStream fos = new FileOutputStream(newFile);
+                    int len;
+                    while ((len = zipInput.read(buffer)) > 0) {
+                        fos.write(buffer, 0, len);
+                    }
+                    fos.close();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showConfirmDialog(null, e.getMessage(), "Bluemap Datapack Generator - Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+        return true;
+    }
+
+    /**
+     * Windows fix
+     * @param destinationDir Destination directory
+     * @param zipEntry The zip entry
+     * @return The file
+     * @throws IOException
+     */
+    public static File newFile(File destinationDir, ZipEntry zipEntry) throws IOException {
+        File destFile = new File(destinationDir, zipEntry.getName());
+
+        String destDirPath = destinationDir.getCanonicalPath();
+        String destFilePath = destFile.getCanonicalPath();
+
+        if (!destFilePath.startsWith(destDirPath + File.separator)) {
+            throw new IOException("Entry is outside of the target dir: " + zipEntry.getName());
+        }
+
+        return destFile;
     }
 }
