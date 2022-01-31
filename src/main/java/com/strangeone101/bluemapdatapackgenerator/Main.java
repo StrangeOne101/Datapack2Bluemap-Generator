@@ -7,17 +7,12 @@ import com.google.gson.JsonObject;
 import javax.swing.*;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FilenameFilter;
 import java.io.IOException;
 
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
@@ -74,7 +69,7 @@ public class Main {
                         outBiome.grasscolor = biome.effects.grass_color != 0 ? biome.effects.grass_color : null;
                         outBiome.watercolor = biome.effects.water_color != 0 ? biome.effects.water_color : null;
                         outBiome.humidity = biome.downfall;
-                        outBiome.temperature = biome.temperature;
+                        outBiome.temperature = biome.temp;
                         String name = namespace.getName() + ":" + biomeFile.getName().replace(".json", "");
                         output.add(name, gson.toJsonTree(outBiome));
                         amount++;

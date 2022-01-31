@@ -11,7 +11,7 @@ public class Biome {
     Object spawn_costs;
     boolean player_spawn_friendly;
     String precipitation;
-    double temperature;
+    double temp;
     double downfall;
     String category;
     double depth;
