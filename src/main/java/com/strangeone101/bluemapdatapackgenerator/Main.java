@@ -94,7 +94,7 @@ public class Main {
             File zip = new File("BiomeColors_(" + shortDatapackName + ").zip");
 
             ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zip));
-            ZipEntry e = new ZipEntry("assets/minecraft/biomes.json");
+            ZipEntry e = new ZipEntry("assets/minecraft/bluemap/biomes.json");
             out.putNextEntry(e);
 
             byte[] data = gson.toJson(output).getBytes(StandardCharsets.UTF_8);
