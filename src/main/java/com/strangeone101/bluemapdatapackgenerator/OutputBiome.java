@@ -2,7 +2,7 @@ package com.strangeone101.bluemapdatapackgenerator;
 
 public class OutputBiome {
     double humidity;
-    double temperature;
+    double temp;
     Integer foliagecolor;
     Integer grasscolor;
     Integer watercolor;

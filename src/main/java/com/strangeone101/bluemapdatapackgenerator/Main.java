@@ -69,7 +69,7 @@ public class Main {
                         outBiome.grasscolor = biome.effects.grass_color != 0 ? biome.effects.grass_color : null;
                         outBiome.watercolor = biome.effects.water_color != 0 ? biome.effects.water_color : null;
                         outBiome.humidity = biome.downfall;
-                        outBiome.temperature = biome.temp;
+                        outBiome.temp = biome.temperature;
                         String name = namespace.getName() + ":" + biomeFile.getName().replace(".json", "");
                         output.add(name, gson.toJsonTree(outBiome));
                         amount++;
