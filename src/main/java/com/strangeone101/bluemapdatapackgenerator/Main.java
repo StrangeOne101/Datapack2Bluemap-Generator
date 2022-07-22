@@ -61,6 +61,7 @@ public class Main {
         try {
             for (File namespace : new File(input, "data").listFiles(File::isDirectory)) {
                 File biomeFolder = new File(namespace, "worldgen" + File.separator + "biome");
+                if (biomeFolder == null || !biomeFolder.exists()) continue;
                 for (File biomeFile : biomeFolder.listFiles()) {
                     if (biomeFile.getName().endsWith(".json")) {
                         Biome biome = gson.fromJson(new FileReader(biomeFile), Biome.class);
@@ -81,9 +82,14 @@ public class Main {
 
             String shortDatapackName = pack;
             if (shortDatapackName.contains("|")) shortDatapackName = shortDatapackName.split("\\|")[0];
-            if (shortDatapackName.contains("-")) shortDatapackName = shortDatapackName.split("-")[0];
+            else if (shortDatapackName.contains("-")) shortDatapackName = shortDatapackName.split("-")[0];
+            else if (shortDatapackName.contains(".")) shortDatapackName = shortDatapackName.split("\\.")[0];
+
             shortDatapackName = shortDatapackName.trim();
+
             if (shortDatapackName.length() == 0) shortDatapackName = pack; //Something didn't go right so just forget making a short name
+            else if (shortDatapackName.length() > 30) shortDatapackName = shortDatapackName.split(" ")[0]; //If the name is too long, just take the first word
+
             shortDatapackName = shortDatapackName.replaceAll(" ", "_");
 
             File zip = new File("BiomeColors_(" + shortDatapackName + ").zip");
